@@ -1,10 +1,49 @@
 #include <stdio.h>
 
-static char memory[127];
+static unsigned char memory[127];
+
+int printmemory()
+{
+	for(int i = 0; i < 127; ++i)
+	{
+		printf("%d: %i ", i, memory[i]);
+	}
+	printf("\n");
+}
+
+
+int searchindex(int bytesize)
+{
+	int bestindex;
+	int minremainder = 126;
+	int index = 0;
+	while (index < 126)
+	{
+		unsigned int payloadsz = (memory[index] >> 1)-1; // size of payload at current index
+		unsigned int allocated = memory[index] & 1;
+		if (!allocated)
+		{
+			if (payloadsz >= bytesize)
+			{
+				int remainder = payloadsz - bytesize;
+				if (remainder < minremainder) {
+					bestindex = index;
+					minremainder = remainder;
+					index += payloadsz;
+				}
+			}
+		}
+		else
+		{
+			index+=(payloadsz+2);
+		}
+	}
+	return bestindex;
+}
 
 void initializemem()
 {
-	memory[0] = 0b1111110;
+	memory[0] = 0b11111110;
 	for (int i = 1; i < sizeof(memory); i++)
 	{
 		memory[i] = 0;
@@ -13,9 +52,15 @@ void initializemem()
 
 void memmalloc(int bytenum)
 {
-
+	int bestindex = searchindex(bytenum);
+	int header = (bytenum << 1) | 1;
+	unsigned int payloadsz = (memory[bestindex] >> 1)-1;
+	unsigned int remainder = payloadsz - (bytenum);
+	memory[bestindex] = header;
+	memory[bestindex + bytenum + 1] = (remainder << 1) | 0;
+	printmemory();
 }
-
+	
 void memfree(int memnum)
 {
 
@@ -56,7 +101,7 @@ void parsecmd(char * buf)
 			if (cmd != NULL)
 			{
 				int bytenum = atoi(cmd);
-				if (bytenum >= 1 && bytenum <= 127)
+				if (bytenum >= 1 && bytenum <= 126)
 				{
 					memmalloc(bytenum);
 				}
