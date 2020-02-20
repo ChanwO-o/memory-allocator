@@ -1,5 +1,16 @@
 #include <stdio.h>
 
+static char memory[127];
+
+void initializemem()
+{
+	memory[0] = 0b1111110;
+	for (int i = 1; i < sizeof(memory); i++)
+	{
+		memory[i] = 0;
+	}
+}
+
 void memmalloc(int bytenum)
 {
 
@@ -10,16 +21,26 @@ void memfree(int memnum)
 
 }
 
-void printmem()
-{
-
-}
-
 void memwrite(int addr, char * info)
 {
 
 }
 
+void blocklist()
+{
+
+}
+
+void printmem(int addr, int length)
+{
+	for (int i = addr; i < addr+length; i++)
+	{
+		if (i > 126)
+			break;
+		printf("%i : %i ", i, memory[i]);
+	}
+	printf("\n");
+}
 
 void parsecmd(char * buf)
 {
@@ -55,7 +76,7 @@ void parsecmd(char * buf)
 		}
 		else if (strcmp(cmd, "blocklist") == 0)
 		{
-			printmem();
+			blocklist();
 		}
 		else if (strcmp(cmd, "writemem") == 0)
 		{
@@ -76,8 +97,23 @@ void parsecmd(char * buf)
 		}
 		else if (strcmp(cmd, "printmem") == 0)
 		{
-			printf("printmem\n");
-			
+			cmd = strtok(NULL, " ");
+			if (cmd != NULL)
+			{
+				int addr = atoi(cmd);
+				if (addr >= 1 && addr <= 127)
+				{
+					cmd = strtok(NULL, " ");
+					if (cmd != NULL)
+					{
+						int length = atoi(cmd);
+						if (length >= 1 && length <= 127)
+						{
+							printmem(addr, length);
+						}
+					}
+				}
+			}
 		}
 		else if (strcmp(cmd, "quit") == 0)
 		{
@@ -92,20 +128,16 @@ int main() {
 
 	char buf[50];
 
+	initializemem();
+
 	while (1)
 	{
 		printf("> ");
 
 		if (fgets(buf, sizeof(buf), stdin) != NULL)
         { 
-            // if (strcmp(buf, "quit\n") == 0)
-            //     break;
-            // 
-
             parsecmd(buf);    
         }
-
 	}
-
 	return 0;
 }
