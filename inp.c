@@ -158,19 +158,17 @@ void start() {
 			}
 		}
 		else if (strcmp(cmd, "printmem") == 0) {
-			printmem();
-			// cmd = strtok(NULL, " ");
-			// if (cmd != NULL) {
-				// int addr = atoi(cmd);
-				// if (addr >= 1 && addr <= 127) {
-					// cmd = strtok(NULL, " ");
-					// if (cmd != NULL) {
-						// int length = atoi(cmd);
-						// if (length >= 1 && length <= 127)
-							// printmem(addr, length);
-					// }
-				// }
-			// }
+			cmd = strtok(NULL, " \t");
+			if (cmd != NULL) {
+				int addr = atoi(cmd);
+				cmd = strtok(NULL, " \t");
+				if (cmd != NULL) {
+					int stop = atoi(cmd) + addr;
+					for (addr; addr < stop; ++addr)
+						printf("%02X ", memory[addr]);
+					printf("\n");
+				}
+			}
 		}
 		
         mergefreesectors();
