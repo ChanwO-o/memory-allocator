@@ -21,6 +21,20 @@ void printmem() {
 	printf("\n");
 }
 
+void blocklist() {
+	int index = 0;
+	while (index < 126) {
+		unsigned int payloadsz = (memory[index] >> 1) - 1; // size of payload at current index
+		unsigned int allocated = memory[index] & 1;
+		printf("%d, %d, ", index + 1, payloadsz);
+		if (allocated)
+			printf("allocated\n");
+		else
+			printf("free\n");
+		index += (payloadsz + 1);
+	}
+}
+
 int getbestindex(int bytesize) {
 	int bestindex;
 	int minremainder = 999;
@@ -127,7 +141,7 @@ void start() {
 			}
 		}
 		else if (strcmp(cmd, "blocklist") == 0) {
-			// blocklist();
+			blocklist();
 		}
 		else if (strcmp(cmd, "writemem") == 0) {
 			printf("writemem\n");
