@@ -4,7 +4,8 @@ static unsigned char memory[127];
 
 int printmemory()
 {
-	for(int i = 0; i < 127; ++i)
+	int i;
+	for(i = 0; i < 127; ++i)
 	{
 		if (i%10 == 0)
 		{
@@ -49,7 +50,8 @@ int searchindex(int bytesize)
 void initializemem()
 {
 	memory[0] = 0b11111110;
-	for (int i = 1; i < sizeof(memory); i++)
+	int i;
+	for (i = 1; i < sizeof(memory); i++)
 	{
 		memory[i] = 0;
 	}
@@ -73,7 +75,7 @@ void memmalloc(int bytenum)
 		memory[bestindex + bytenum + 1] = (remainder << 1) | 0;
 
 	printf("%d\n", bestindex+1);
-	printmemory();
+	// printmemory();
 }
 	
 void memfree(int memnum)
@@ -84,8 +86,39 @@ void memfree(int memnum)
 	memory[index] = currval;
 	printf("Index: %i\n", index);
 	printf("Memory: %i\n", memory[index]);
-	printmemory();
+	// printmemory();
+}
 
+void mergefreesectors()
+{
+	int index = 0;
+	while (index < 126)
+	{
+		unsigned int payloadsz = (memory[index] >> 1)-1; // size of payload at current index
+		unsigned int allocated = memory[index] & 1;
+		if (!allocated) // free block found
+		{
+			int nextindex = index + payloadsz + 1;
+			if (nextindex >= 127) // reached end of heap
+				break;
+			unsigned int nextpayloadsz = (memory[nextindex] >> 1) - 1;
+			unsigned int nextallocated = memory[nextindex] & 1;
+			if (!nextallocated) // next is lso free : perform merge
+			{
+				int newpayloadsize = payloadsz + nextpayloadsz + 2;
+				int newheader = (newpayloadsize << 1); // shift left
+				memory[index] = newheader;
+			}
+			else
+			{
+				index += (payloadsz + 1);
+			}
+		}
+		else
+		{
+			index += (payloadsz + 1);
+		}
+	}
 }
 
 void memwrite(int addr, char * info)
@@ -100,7 +133,8 @@ void blocklist()
 
 void printmem(int addr, int length)
 {
-	for (int i = addr; i < addr+length; i++)
+	int i;
+	for (i = addr; i < addr+length; i++)
 	{
 		if (i > 126)
 			break;
@@ -203,8 +237,10 @@ int main() {
 
 		if (fgets(buf, sizeof(buf), stdin) != NULL)
         { 
-            parsecmd(buf);    
+            parsecmd(buf);
         }
+        mergefreesectors();
+        printmemory();
 	}
 	return 0;
 }
