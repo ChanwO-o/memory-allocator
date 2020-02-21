@@ -133,7 +133,7 @@ void start() {
 			}
 		}
 		else if (strcmp(cmd, "free") == 0) {
-			cmd = strtok(NULL, " ");
+			cmd = strtok(NULL, " \t");
 			if (cmd != NULL) {
 				int memnum = atoi(cmd);
 				if (memnum >= 1 && memnum <= 127)
@@ -144,18 +144,18 @@ void start() {
 			blocklist();
 		}
 		else if (strcmp(cmd, "writemem") == 0) {
-			printf("writemem\n");
-			// cmd = strtok(NULL, " ");
-			// if (cmd != NULL) {
-				// int addr = atoi(cmd);
-				// if (addr >= 1 && addr <= 127) {
-					// cmd = strtok(NULL, " ");
-					// if (cmd != NULL) {
-						// int info = cmd;
-						// memwrite(addr, info);
-					// }					
-				// }
-			// }
+			cmd = strtok(NULL, " \t");
+			if (cmd != NULL) {
+				int addr = atoi(cmd);
+				cmd = strtok(NULL, " \t"); // text to write
+				
+				int i = 0;
+				while (cmd[i] != '\0') {
+					memory[addr] = cmd[i];
+					addr++;
+					i++;
+				}
+			}
 		}
 		else if (strcmp(cmd, "printmem") == 0) {
 			printmem();
