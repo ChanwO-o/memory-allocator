@@ -6,7 +6,12 @@ int printmemory()
 {
 	for(int i = 0; i < 127; ++i)
 	{
-		printf("%d: %i ", i, memory[i]);
+		if (i%10 == 0)
+		{
+			printf("\n");
+		}
+		printf("%d: %i\t", i, memory[i]);
+		
 	}
 	printf("\n");
 }
@@ -15,12 +20,16 @@ int printmemory()
 int searchindex(int bytesize)
 {
 	int bestindex;
-	int minremainder = 126;
+	int minremainder = 999;
 	int index = 0;
 	while (index < 126)
 	{
 		unsigned int payloadsz = (memory[index] >> 1)-1; // size of payload at current index
 		unsigned int allocated = memory[index] & 1;
+		printf("Payload: %d\n", payloadsz);
+		printf("Index: %d\n", index);
+		printf("Allocated: %d\n", allocated);
+
 		if (!allocated)
 		{
 			if (payloadsz >= bytesize)
@@ -29,14 +38,10 @@ int searchindex(int bytesize)
 				if (remainder < minremainder) {
 					bestindex = index;
 					minremainder = remainder;
-					index += payloadsz;
-				}
+				}		
 			}
 		}
-		else
-		{
-			index+=(payloadsz+2);
-		}
+		index += (payloadsz+1);
 	}
 	return bestindex;
 }
@@ -53,16 +58,33 @@ void initializemem()
 void memmalloc(int bytenum)
 {
 	int bestindex = searchindex(bytenum);
-	int header = (bytenum << 1) | 1;
-	unsigned int payloadsz = (memory[bestindex] >> 1)-1;
-	unsigned int remainder = payloadsz - (bytenum);
+	int header = ((bytenum+1) << 1) | 1;
+	unsigned int payloadsz = (memory[bestindex] >> 1);
+	unsigned int remainder = payloadsz - (bytenum+1);
+
+	printf("Payloadsz: %i\n", payloadsz);
+	printf("Remainder: %i\n", remainder);
+
 	memory[bestindex] = header;
-	memory[bestindex + bytenum + 1] = (remainder << 1) | 0;
+
+	unsigned int currval = memory[bestindex+bytenum+1];
+
+	if (currval < remainder)
+		memory[bestindex + bytenum + 1] = (remainder << 1) | 0;
+
+	printf("%d\n", bestindex+1);
 	printmemory();
 }
 	
 void memfree(int memnum)
 {
+	int index = memnum-1;
+	int currval = memory[index] & 0b11111110;
+	printf("%i\n", currval);
+	memory[index] = currval;
+	printf("Index: %i\n", index);
+	printf("Memory: %i\n", memory[index]);
+	printmemory();
 
 }
 
