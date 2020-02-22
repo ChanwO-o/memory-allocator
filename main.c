@@ -139,6 +139,7 @@ void start() {
 				if (memnum >= 1 && memnum <= 127)
 					memfree(memnum);
 			}
+			mergefreesectors();
 		}
 		else if (strcmp(cmd, "blocklist") == 0) {
 			blocklist();
@@ -165,13 +166,13 @@ void start() {
 				if (cmd != NULL) {
 					int stop = atoi(cmd) + addr;
 					for (addr; addr < stop; ++addr)
-						printf("%02X ", memory[addr]);
+						printf("%.2X ", memory[addr]);
 					printf("\n");
 				}
 			}
 		}
 		
-        mergefreesectors();
+        // mergefreesectors();
 		fflush(stdin);
 	}
 }
